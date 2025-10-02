@@ -14,25 +14,28 @@ const CategorySchema = new Schema(
     },
     description: { type: String, maxlength: 500 },
   },
-  { timestamps: true }
+  { timestamps: true, toJSON: { virtuals: true }, toObject: { virtuals: true } }
 );
 
 // ! FALTA COMPLETAR ACA
-CategorySchema.virtual("asset", {
-  ref: "asset",
+CategorySchema.virtual("assets", {
+  ref: "Asset",
   localField: "_id",
-  foreignField: "category",
+  foreignField: "categories",
   justOne: false,
 });
-CategorySchema.set("toObject", { virtuals: true });
-CategorySchema.set("toJSON", { virtuals: true });
 
 CategorySchema.pre("findOneAndDelete", async function (next) {
-  const filter = this.getQuery();
-
-  const category = await this.model.findOne(filter);
-  if (category) await AssetModel.deleteMany({ category: category._id });
-
+  const category = await this.model.findOne(this.getFilter());
+  
+  if (category) {
+    // Remover esta categoría de todos los assets que la referencian
+    await AssetModel.updateMany(
+      { categories: category._id },
+      { $pull: { categories: category._id } }
+    );
+  }
+  
   next();
 });
 

@@ -22,17 +22,25 @@ const UserSchema = new Schema(
     // ! FALTA COMPLETAR ACA
     profile: {
       employee_number: { type: String, unique: true, required: true },
-      first_name: { type: String, require: true, minLength: 2, maxLength: 50 },
-      last_name: { type: String, require: true, minLength: 2, maxLength: 50 },
-      phone: { type: String, require: false },
+      first_name: { type: String, required: true, minLength: 2, maxLength: 50 },
+      last_name: { type: String, required: true, minLength: 2, maxLength: 50 },
+      phone: { type: String, required: false },
     },
   },
   {
-    deletedAt: true,
     timestamps: true,
+    toJSON: { virtuals: true },
+    toObject: { virtuals: true },
   }
 );
 
 // ! FALTA COMPLETAR ACA
+
+UserSchema.virtual("assets", {
+  ref: "Asset",
+  localField: "_id",
+  foreignField: "responsible_id",
+  justOne: false,
+});
 
 export const UserModel = model("User", UserSchema);

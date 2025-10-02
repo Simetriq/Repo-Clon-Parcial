@@ -1,5 +1,4 @@
 import { Schema, model } from "mongoose";
-import { CategoryModel } from "./category.model.js";
 
 // TODO: completar relaciones embebidas y referenciadas
 
@@ -22,28 +21,24 @@ const AssetSchema = new Schema(
     acquisitionDate: { type: Date, required: true },
     acquisitionValue: { type: Number, required: true, min: 0 },
     // ! FALTA COMPLETAR ACA
-    user: {
+    responsible: {
       type: Schema.Types.ObjectId,
       ref: "User",
-      required: [true, "El autor es requerido"],
+      required: true,
     },
-    category: [
+    categories: [
       {
         type: Schema.Types.ObjectId,
         ref: "Category",
       },
     ],
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+    toJSON: { virtuals: true }, // ✅ Para virtuals
+    toObject: { virtuals: true }, // ✅ Para virtuals
+  }
 );
 
-AssetSchema.pre("findOneAndDelete", async function (next) {
-  const filter = this.getQuery();
-
-  const asset = await this.model.findOne(filter);
-  if (asset) await CategoryModel.deleteMany({ asset: asset._id });
-
-  next();
-});
 
 export const AssetModel = model("Asset", AssetSchema);
