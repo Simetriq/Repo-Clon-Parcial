@@ -5,6 +5,7 @@ import {
   getProfile,
   register,
 } from "../controllers/auth.controller.js";
+import { authMiddleware } from "../middlewares/auth.middleware.js";
 
 export const authRoutes = Router();
 
@@ -17,7 +18,7 @@ authRoutes.post("/auth/register", register);
 authRoutes.post("/auth/login", login);
 
 // * obtener perfil (usuario autenticado)
-authRoutes.get("/auth/profile", getProfile);
+authRoutes.get("/auth/profile", authMiddleware, getProfile);
 
 // * cerrar sesión (usuario autenticado)
-authRoutes.post("/auth/logout", logout);
+authRoutes.post("/auth/logout", authMiddleware, logout);
